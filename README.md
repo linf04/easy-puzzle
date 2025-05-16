@@ -70,3 +70,12 @@ npm run dev
 - 修改代码后会自动重启服务器
 - 上传的临时文件会自动清理
 
+
+### 打赏支持
+如果你觉得这个项目对你有帮助，可以请作者喝杯咖啡 ☕
+
+**支付宝**  
+![支付宝收款码](https://cchao123.github.io/images/12300107/WechatIMG3954.jpg)
+
+**微信**  
+![微信收款码](https://cchao123.github.io/images/12300107/WechatIMG3954.jpg)

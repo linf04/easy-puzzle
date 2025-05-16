@@ -53,8 +53,8 @@ app.post('/generate', upload.single('image'), async (req, res) => {
     });
     console.log('已清空输出目录');
 
-    // 计算碎片大小（图片宽度的1/100）
-    const blockSize = Math.floor(metadata.width / 100);
+    // 计算碎片大小（图片宽度的1/50）
+    const blockSize = Math.floor(metadata.width / 50);
     console.log(`碎片大小: ${blockSize}x${blockSize} 像素`);
 
     // 将图片分成小块
@@ -64,64 +64,78 @@ app.post('/generate', upload.single('image'), async (req, res) => {
 
     console.log(`将图片分成 ${blocksX}x${blocksY} 个小块，总共 ${totalBlocks} 个碎片，每个碎片 ${blockSize}x${blockSize} 像素`);
 
+    // 创建白色背景
+    const whiteBackground = await sharp({
+        create: {
+            width: metadata.width,
+            height: metadata.height,
+            channels: 4,
+            background: { r: 255, g: 255, b: 255, alpha: 1 }
+        }
+    }).png().toBuffer();
 
     // 为每个输出图片创建缓冲区
-    const outputBuffers = Array(numPieces).fill().map(() =>
-      Buffer.alloc(metadata.width * metadata.height * 4, 255)
+    const outputBuffers = Array(numPieces).fill().map(() => 
+        Buffer.alloc(metadata.width * metadata.height * 4, 255)
     );
 
     // 随机分配每个块到输出图片
     for (let blockY = 0; blockY < blocksY; blockY++) {
-      for (let blockX = 0; blockX < blocksX; blockX++) {
-        // 随机选择一个输出图片
-        const outputIndex = Math.floor(Math.random() * numPieces);
+        for (let blockX = 0; blockX < blocksX; blockX++) {
+            // 随机选择一个输出图片
+            const outputIndex = Math.floor(Math.random() * numPieces);
+            
+            // 提取当前块
+            const block = await image
+                .clone()
+                .extract({
+                    left: blockX * blockSize,
+                    top: blockY * blockSize,
+                    width: Math.min(blockSize, metadata.width - blockX * blockSize),
+                    height: Math.min(blockSize, metadata.height - blockY * blockSize)
+                })
+                .raw()
+                .toBuffer();
 
-        // 提取当前块
-        const block = await image
-          .clone()
-          .extract({
-            left: blockX * blockSize,
-            top: blockY * blockSize,
-            width: Math.min(blockSize, metadata.width - blockX * blockSize),
-            height: Math.min(blockSize, metadata.height - blockY * blockSize)
-          })
-          .raw()
-          .toBuffer();
-
-        // 将块复制到选定的输出图片
-        const outputBuffer = outputBuffers[outputIndex];
-        for (let y = 0; y < blockSize && (blockY * blockSize + y) < metadata.height; y++) {
-          for (let x = 0; x < blockSize && (blockX * blockSize + x) < metadata.width; x++) {
-            const sourceIndex = (y * blockSize + x) * 4;
-            const targetIndex = ((blockY * blockSize + y) * metadata.width + (blockX * blockSize + x)) * 4;
-
-            if (sourceIndex < block.length && targetIndex < outputBuffer.length) {
-              outputBuffer[targetIndex] = block[sourceIndex];     // R
-              outputBuffer[targetIndex + 1] = block[sourceIndex + 1]; // G
-              outputBuffer[targetIndex + 2] = block[sourceIndex + 2]; // B
-              outputBuffer[targetIndex + 3] = block[sourceIndex + 3]; // A
+            // 将块复制到选定的输出图片
+            const outputBuffer = outputBuffers[outputIndex];
+            for (let y = 0; y < blockSize && (blockY * blockSize + y) < metadata.height; y++) {
+                for (let x = 0; x < blockSize && (blockX * blockSize + x) < metadata.width; x++) {
+                    const sourceIndex = (y * blockSize + x) * 4;
+                    const targetIndex = ((blockY * blockSize + y) * metadata.width + (blockX * blockSize + x)) * 4;
+                    
+                    if (sourceIndex < block.length && targetIndex < outputBuffer.length) {
+                        outputBuffer[targetIndex] = block[sourceIndex];     // R
+                        outputBuffer[targetIndex + 1] = block[sourceIndex + 1]; // G
+                        outputBuffer[targetIndex + 2] = block[sourceIndex + 2]; // B
+                        outputBuffer[targetIndex + 3] = block[sourceIndex + 3]; // A
+                    }
+                }
             }
-          }
         }
-      }
     }
 
     // 保存所有输出图片
     const pieces = [];
     for (let i = 0; i < numPieces; i++) {
-      const piecePath = path.join(outputDir, `piece_${i}.png`);
-      await sharp(outputBuffers[i], {
-        raw: {
-          width: metadata.width,
-          height: metadata.height,
-          channels: 4
-        }
-      })
-        .png()
+        const piecePath = path.join(outputDir, `piece_${i}.png`);
+        await sharp(outputBuffers[i], {
+            raw: {
+                width: metadata.width,
+                height: metadata.height,
+                channels: 4
+            }
+        })
+        .png({
+            quality: 100,
+            compressionLevel: 0,
+            palette: false,
+            effort: 0
+        })
         .toFile(piecePath);
-
-      pieces.push(`/puzzle_pieces/piece_${i}.png`);
-      console.log(`保存碎片到: ${piecePath}`);
+        
+        pieces.push(`/puzzle_pieces/piece_${i}.png`);
+        console.log(`保存碎片到: ${piecePath}`);
     }
 
     // 清理上传的文件
