@@ -1,0 +1,22 @@
+{
+  "name": "image-puzzle",
+  "version": "1.0.0",
+  "description": "图片拼图生成器",
+  "main": "puzzle.js",
+  "scripts": {
+    "start": "node puzzle.js",
+    "dev": "nodemon puzzle.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.2"
+  },
+  "volta": {
+    "node": "18.19.1",
+    "yarn": "1.22.22"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

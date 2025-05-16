@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片拼图生成器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    .preview {
+      margin-top: 20px;
+    }
+
+    #originalImage,
+    #puzzleContainer {
+      max-width: 760px;
+      margin-top: 10px;
+
+    }
+
+    #puzzleContainer img {
+      max-width: 100%;
+    }
+
+    .puzzle-piece {
+      display: inline-block;
+      margin: 5px;
+      border: 1px solid #ddd;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    input[type="number"] {
+      padding: 5px;
+      margin: 5px;
+    }
+
+    .loading {
+      display: none;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- <h1>图片拼图生成器</h1> -->
+    <div class="controls">
+      <form id="puzzleForm">
+        <input type="file" id="imageInput" name="image" accept="image/*" required>
+        <br>
+        <label for="numPieces">拆分张数 (5-9):</label>
+        <input type="number" id="numPieces" name="numPieces" min="5" max="9" value="5">
+        <br>
+        <button type="submit">开始拆图</button>
+      </form>
+      <div class="loading" id="loading">处理中...</div>
+    </div>
+    <div class="preview">
+      <h3>原图预览：</h3>
+      <img id="originalImage" style="display: none;">
+      <h3>拼图碎片：</h3>
+      <div id="puzzleContainer"></div>
+    </div>
+
+  </div>
+  <div class="container" style="margin-top: 30px">
+    <div class="merge-section">
+      <h3>图片合并：</h3>
+      <input type="file" id="mergeInput" multiple accept="image/*">
+      <button id="mergeBtn" type="button">合并图片（正片叠底）</button>
+      <div id="mergeResult"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('imageInput').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.getElementById('originalImage');
+          img.src = e.target.result;
+          img.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('puzzleForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const loading = document.getElementById('loading');
+      const puzzleContainer = document.getElementById('puzzleContainer');
+
+      loading.style.display = 'block';
+      puzzleContainer.innerHTML = '';
+
+      try {
+        const response = await fetch('/generate', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          data.pieces.forEach(pieceUrl => {
+            const img = document.createElement('img');
+            img.src = pieceUrl;
+            img.className = 'puzzle-piece';
+            puzzleContainer.appendChild(img);
+          });
+        } else {
+          alert(`错误: ${data.error}\n详细信息: ${data.details || '无'}`);
+        }
+      } catch (error) {
+        alert(`服务器错误: ${error.message}\n请确保服务器正在运行，并且上传了正确的图片文件。`);
+      } finally {
+        loading.style.display = 'none';
+      }
+    });
+
+    document.getElementById('mergeBtn').addEventListener('click', async function () {
+      const input = document.getElementById('mergeInput');
+      const files = Array.from(input.files).filter(f => f.type.startsWith('image/'));
+      if (files.length < 2) {
+        alert('请至少选择两张图片');
+        return;
+      }
+      const formData = new FormData();
+      files.forEach(f => formData.append('images', f, f.name));
+
+      const res = await fetch('/merge', {
+        method: 'POST',
+        body: formData
+      });
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      document.getElementById('mergeResult').innerHTML = `<img src=\"${url}\" style=\"max-width:100%\">`;
+    });
+  </script>
+</body>
+
+</html>
