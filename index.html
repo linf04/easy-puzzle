@@ -73,16 +73,23 @@
 </head>
 
 <body>
+  <h1 style="margin-top: 30px">图片合并：</h1>
   <div class="container">
-    <!-- <h1>图片拼图生成器</h1> -->
+    <input type="file" id="mergeInput" multiple accept="image/*">
+    <button id="mergeBtn" type="button">合并图片（正片叠底）</button>
+    <div id="mergeResult"></div>
+  </div>
+
+  <h1>图片拆分</h1>
+  <div class="container">
     <div class="controls">
       <form id="puzzleForm">
         <input type="file" id="imageInput" name="image" accept="image/*" required>
         <br>
-        <label for="numPieces">拆分张数 (5-9):</label>
-        <input type="number" id="numPieces" name="numPieces" min="5" max="9" value="5">
-        <br>
-        <button type="submit">开始拆图</button>
+        <label for="numPieces">碎片数量:</label>
+        <input type="range" id="numPieces" name="numPieces" min="2" max="9" value="5" step="1">
+        <span id="numPiecesValue">5</span>
+        <button type="submit">生成拆图</button>
       </form>
       <div class="loading" id="loading">处理中...</div>
     </div>
@@ -92,18 +99,16 @@
       <h3>拼图碎片：</h3>
       <div id="puzzleContainer"></div>
     </div>
+  </div>
 
-  </div>
-  <div class="container" style="margin-top: 30px">
-    <div class="merge-section">
-      <h3>图片合并：</h3>
-      <input type="file" id="mergeInput" multiple accept="image/*">
-      <button id="mergeBtn" type="button">合并图片（正片叠底）</button>
-      <div id="mergeResult"></div>
-    </div>
-  </div>
+  <p>如果拆分较慢，建议选择宽高较小的图片或缩小宽高。</p>
+
 
   <script>
+    document.getElementById('numPieces').addEventListener('input', function (e) {
+      document.getElementById('numPiecesValue').textContent = e.target.value;
+    });
+
     document.getElementById('imageInput').addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (file) {

@@ -47,6 +47,12 @@ app.post('/generate', upload.single('image'), async (req, res) => {
     const metadata = await image.metadata();
     console.log('图片信息:', metadata);
 
+    // 清空输出目录
+    fs.readdirSync(outputDir).forEach(file => {
+      fs.unlinkSync(path.join(outputDir, file));
+    });
+    console.log('已清空输出目录');
+
     // 计算碎片大小（图片宽度的1/100）
     const blockSize = Math.floor(metadata.width / 100);
     console.log(`碎片大小: ${blockSize}x${blockSize} 像素`);
