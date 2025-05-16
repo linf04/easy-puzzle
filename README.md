@@ -1,13 +1,11 @@
 # 图片拼图生成器
-
+![](https://cchao123.github.io/images/cchao2025/easy-puzzle.jpg)
 这是一个基于 Node.js 的图片拼图生成器，可以将一张图片分割成多个碎片，并支持将多张图片合并。
 
 ## 功能特点
-
-- 将图片分割成多个碎片
-- 支持选择碎片数量（2-9张）
 - 支持多张图片合并（正片叠底模式）
-- 实时预览原图
+- 将图片分割成多个碎片,支持选择碎片数量（2-9张）
+
 
 ## 安装步骤
 
@@ -74,8 +72,12 @@ npm run dev
 ### 打赏支持
 如果你觉得这个项目对你有帮助，可以请作者喝杯咖啡 ☕
 
-**支付宝**  
-![支付宝收款码](https://cchao123.github.io/images/12300107/WechatIMG3954.jpg)
 
-**微信**  
-![微信收款码](https://cchao123.github.io/images/12300107/WechatIMG3954.jpg)
+## 支持本项目
+
+如果你觉得这个项目对你有帮助，可以通过以下方式支持作者：
+
+### 一次性捐赠
+- 支付宝/微信扫码打赏：  
+  <img src="https://cchao123.github.io/images/12300107/WechatIMG3953.jpg" alt="扫码打赏" width="200">
+  <img src="https://cchao123.github.io/images/12300107/WechatIMG3954.jpg" alt="扫码打赏" width="200">
