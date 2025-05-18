@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>图片拼图生成器</title>
+  <title>图片拼图生成器（静态版）</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -33,7 +33,6 @@
     #puzzleContainer {
       max-width: 760px;
       margin-top: 10px;
-
     }
 
     #puzzleContainer img {
@@ -44,6 +43,7 @@
       display: inline-block;
       margin: 5px;
       border: 1px solid #ddd;
+      cursor: pointer;
     }
 
     button {
@@ -60,7 +60,8 @@
       background-color: #45a049;
     }
 
-    input[type="number"] {
+    input[type="number"],
+    input[type="range"] {
       padding: 5px;
       margin: 5px;
     }
@@ -68,39 +69,48 @@
     .loading {
       display: none;
       margin: 10px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* 还原 GitHub 角落图标样式 */
+    .github-corner {
+      position: absolute;
+      top: 0;
+      right: 0;
+      border: 0;
+    }
+
+    .github-corner svg {
+      fill: #151513;
+      color: #fff;
+      height: 80px;
+      width: 80px;
+    }
+
+    @media (max-width: 500px) {
+      .github-corner {
+        display: none;
+      }
     }
   </style>
-
-<style>
-  .github-corner:hover .octo-arm {
-    animation: octocat-wave 560ms ease-in-out;
-  }
-  @keyframes octocat-wave {
-    0%, 100% { transform: rotate(0); }
-    20%, 60% { transform: rotate(-25deg); }
-    40%, 80% { transform: rotate(10deg); }
-  }
-  @media (max-width:500px) {
-    .github-corner:hover .octo-arm {
-      animation: none;
-    }
-    .github-corner .octo-arm {
-      animation: octocat-wave 560ms ease-in-out;
-    }
-  }
-</style>
-
 </head>
 
 <body>
   <a href="https://github.com/cchao123/easy-puzzle" class="github-corner" aria-label="View source on GitHub">
-    <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+    <svg width="80" height="80" viewBox="0 0 250 250"
+      style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+      <!-- 原有 SVG 路径代码 -->
       <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
-      <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
-      <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
     </svg>
   </a>
-  
+
   <h1 style="margin-top: 30px">图片合并：</h1>
   <div class="container">
     <input type="file" id="mergeInput" multiple accept="image/*">
@@ -111,110 +121,197 @@
   <h1>图片拆分</h1>
   <div class="container">
     <div class="controls">
-      <form id="puzzleForm">
-        <input type="file" id="imageInput" name="image" accept="image/*" required>
-        <br>
-        <label for="numPieces">碎片数量:</label>
-        <input type="range" id="numPieces" name="numPieces" min="2" max="9" value="5" step="1">
-        <span id="numPiecesValue">5</span>
-        <button type="submit">生成拆图</button>
-      </form>
+      <input type="file" id="imageInput" accept="image/*" required>
+      <label for="numPieces">碎片数量:</label>
+      <input type="range" id="numPieces" min="2" max="9" value="5">
+      <span id="numPiecesValue">5</span>
+      <button id="generateBtn">生成拆图</button>
       <div class="loading" id="loading">处理中...</div>
     </div>
     <div class="preview">
-      <h3>原图预览：</h3>
       <img id="originalImage" style="display: none;">
-      <h3>拼图碎片：</h3>
       <div id="puzzleContainer"></div>
     </div>
   </div>
 
-
-
   <script>
-    document.getElementById('numPieces').addEventListener('input', function (e) {
-      document.getElementById('numPiecesValue').textContent = e.target.value;
+    // 绑定滑块和数值显示
+    const numPiecesSlider = document.getElementById('numPieces');
+    const numPiecesValue = document.getElementById('numPiecesValue');
+
+    numPiecesSlider.addEventListener('input', function () {
+      numPiecesValue.textContent = this.value;
     });
 
-    document.getElementById('imageInput').addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const img = document.getElementById('originalImage');
-          img.src = e.target.result;
-          img.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    // 图片拆分功能（纯前端实现）
+    document.getElementById('generateBtn').addEventListener('click', async () => {
+      const file = document.getElementById('imageInput').files[0];
+      const numPieces = parseInt(document.getElementById('numPieces').value);
 
-    document.getElementById('puzzleForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-
-      const formData = new FormData();
-      const imageInput = document.getElementById('imageInput');
-      const numPieces = document.getElementById('numPieces').value;
-
-      // 确保有文件被选择
-      if (!imageInput.files[0]) {
-        alert('请选择图片文件');
-        return;
-      }
-
-      // 添加最新的文件到 FormData
-      formData.append('image', imageInput.files[0]);
-      formData.append('numPieces', numPieces);
-
-      const loading = document.getElementById('loading');
-      const puzzleContainer = document.getElementById('puzzleContainer');
-
-      loading.style.display = 'block';
-      puzzleContainer.innerHTML = '';
+      if (!file) return alert('请选择图片');
+      if (numPieces < 2 || numPieces > 9) return alert('碎片数量需在2-9之间');
 
       try {
-        const response = await fetch('/generate', {
-          method: 'POST',
-          body: formData
+        const img = await loadImage(file);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, img.width, img.height);
+
+        // 清空碎片容器
+        document.getElementById('puzzleContainer').innerHTML = '';
+        document.getElementById('loading').style.display = 'block';
+
+        // 拆分逻辑（简化版，随机分块）
+        const pieces = splitImage(imageData, img.width, img.height, numPieces);
+        
+        // pieces.forEach((pieceData, index) => {
+        //   const pieceCanvas = createPieceCanvas(pieceData, img.width, img.height);
+        //   const imgElement = document.createElement('img');
+        //   imgElement.style.width = `${img.width / Math.sqrt(numPieces)}px`;
+        //   imgElement.style.height = `${img.height / Math.sqrt(numPieces)}px`;
+        //   imgElement.src = pieceCanvas.toDataURL('image/png');
+        //   imgElement.className = 'puzzle-piece';
+        //   document.getElementById('puzzleContainer').appendChild(imgElement);
+        // });
+
+        // 生成碎片后触发下载
+        const downloadLinks = [];
+        pieces.forEach((pieceData, index) => {
+          const pieceCanvas = createPieceCanvas(pieceData, img.width, img.height);
+          const imgElement = document.createElement('img');
+          imgElement.src = pieceCanvas.toDataURL('image/png');
+          imgElement.className = 'puzzle-piece';
+          const puzzleContainer = document.getElementById('puzzleContainer');
+          const containerWidth = puzzleContainer.offsetWidth;
+          imgElement.style.width = `${containerWidth / (numPieces+1)}px`;
+          // imgElement.style.width = `${img.width / numPieces}px`;
+          document.getElementById('puzzleContainer').appendChild(imgElement);
+
+          // 创建下载链接
+          const link = document.createElement('a');
+          link.href = pieceCanvas.toDataURL('image/png');
+          link.download = `puzzle-piece-${index + 1}.png`;
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          downloadLinks.push(link);
         });
 
-        const data = await response.json();
 
-        if (response.ok) {
-          data.pieces.forEach(pieceUrl => {
-            const img = document.createElement('img');
-            img.src = pieceUrl + '?t=' + new Date().getTime();
-            img.className = 'puzzle-piece';
-            puzzleContainer.appendChild(img);
-          });
-        } else {
-          alert(`错误: ${data.error}\n详细信息: ${data.details || '无'}`);
+        // 移除之前的下载按钮（如果存在）
+        const oldDownloadBtn = document.querySelector('#puzzleContainer + button');
+        if (oldDownloadBtn) {
+          oldDownloadBtn.remove();
         }
+        // 自动触发所有下载（需用户交互触发，此处通过点击按钮模拟）
+        const downloadAllBtn = document.createElement('button');
+        downloadAllBtn.style.display = 'block';
+        downloadAllBtn.style.margin = '10px auto';
+        downloadAllBtn.textContent = '下载所有碎片';
+        downloadAllBtn.addEventListener('click', () => {
+          downloadLinks.forEach((link, index) => {
+            setTimeout(() => link.click(), 100 * index); // 避免并发下载限制
+          });
+        });
+        document.getElementById('puzzleContainer').insertAdjacentElement('afterend', downloadAllBtn);
+
+
       } catch (error) {
-        alert(`服务器错误: ${error.message}\n请确保服务器正在运行，并且上传了正确的图片文件。`);
+        alert(`处理失败：${error.message}`);
       } finally {
-        loading.style.display = 'none';
+        document.getElementById('loading').style.display = 'none';
       }
     });
 
-    document.getElementById('mergeBtn').addEventListener('click', async function () {
-      const input = document.getElementById('mergeInput');
-      const files = Array.from(input.files).filter(f => f.type.startsWith('image/'));
-      if (files.length < 2) {
-        alert('请至少选择两张图片');
-        return;
-      }
-      const formData = new FormData();
-      files.forEach(f => formData.append('images', f, f.name));
+    // 图片合并功能（纯前端实现）
+    document.getElementById('mergeBtn').addEventListener('click', async () => {
+      const files = Array.from(document.getElementById('mergeInput').files)
+        .filter(f => f.type.startsWith('image/'));
 
-      const res = await fetch('/merge', {
-        method: 'POST',
-        body: formData
+      if (files.length < 2) return alert('请选择至少两张图片');
+
+      try {
+        const images = await Promise.all(files.map(loadImage));
+        const mergedCanvas = mergeImages(images);
+        document.getElementById('mergeResult').innerHTML =
+          `<img src="${mergedCanvas.toDataURL('image/png')}" style="max-width:100%">`;
+      } catch (error) {
+        alert(`合并失败：${error.message}`);
+      }
+    });
+
+    // 辅助函数：加载图片文件
+    function loadImage(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = (err) => reject('图片加载失败');
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
       });
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      document.getElementById('mergeResult').innerHTML = `<img src=\"${url}\" style=\"max-width:100%\">`;
-    });
+    }
+
+    // 辅助函数：拆分图片为碎片
+    function splitImage(imageData, width, height, numPieces) {
+      const pieces = Array(numPieces).fill().map(() => ({
+        data: new Uint8ClampedArray(width * height * 4),
+        width,
+        height
+      }));
+
+      const blockSize = Math.floor(Math.min(width, height) / 10); // 设定小块大小
+      const totalBlocks = Math.floor((width * height) / (blockSize * blockSize));
+
+      for (let y = 0; y < height; y += blockSize) {
+        for (let x = 0; x < width; x += blockSize) {
+          const pieceIndex = Math.floor(Math.random() * numPieces);
+          const piece = pieces[pieceIndex];
+          const endX = Math.min(x + blockSize, width);
+          const endY = Math.min(y + blockSize, height);
+
+          for (let py = y; py < endY; py++) {
+            for (let px = x; px < endX; px++) {
+              const sourceIndex = (py * width + px) * 4;
+              const targetIndex = (py * piece.width + px) * 4;
+              piece.data.set(imageData.data.subarray(sourceIndex, sourceIndex + 4), targetIndex);
+            }
+          }
+        }
+      }
+      return pieces;
+    }
+
+    // 辅助函数：创建碎片画布
+    function createPieceCanvas(pieceData, width, height) {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      const imageData = new ImageData(pieceData.data, width, height);
+      ctx.putImageData(imageData, 0, 0);
+      return canvas;
+    }
+
+    // 辅助函数：合并图片（正片叠底）
+    function mergeImages(images) {
+      const baseCanvas = document.createElement('canvas');
+      baseCanvas.width = images[0].width;
+      baseCanvas.height = images[0].height;
+      const baseCtx = baseCanvas.getContext('2d');
+      baseCtx.drawImage(images[0], 0, 0);
+
+      for (let i = 1; i < images.length; i++) {
+        baseCtx.globalCompositeOperation = 'multiply';
+        baseCtx.drawImage(images[i], 0, 0);
+      }
+
+      return baseCanvas;
+    }
   </script>
 </body>
 
