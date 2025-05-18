@@ -114,7 +114,14 @@
   <h1 style="margin-top: 30px">图片合并：</h1>
   <div class="container">
     <input type="file" id="mergeInput" multiple accept="image/*">
-    <button id="mergeBtn" type="button">合并图片（正片叠底）</button>
+    <!-- <input type="select" id="mergeMode" value="difference"> -->
+    <label for="mergeMode">合并模式:</label>
+    <select id="mergeMode">
+      <option value="multiply">正片叠底</option>
+      <option value="difference" selected>反差</option>
+    </select>
+  <!-- </input> -->
+    <button id="mergeBtn" type="button">合并图片</button>
     <div id="mergeResult"></div>
   </div>
 
@@ -166,7 +173,7 @@
 
         // 拆分逻辑（简化版，随机分块）
         const pieces = splitImage(imageData, img.width, img.height, numPieces);
-        
+
         // pieces.forEach((pieceData, index) => {
         //   const pieceCanvas = createPieceCanvas(pieceData, img.width, img.height);
         //   const imgElement = document.createElement('img');
@@ -186,7 +193,7 @@
           imgElement.className = 'puzzle-piece';
           const puzzleContainer = document.getElementById('puzzleContainer');
           const containerWidth = puzzleContainer.offsetWidth;
-          imgElement.style.width = `${containerWidth / (numPieces+1)}px`;
+          imgElement.style.width = `${containerWidth / (numPieces + 1)}px`;
           // imgElement.style.width = `${img.width / numPieces}px`;
           document.getElementById('puzzleContainer').appendChild(imgElement);
 
@@ -234,7 +241,15 @@
 
       try {
         const images = await Promise.all(files.map(loadImage));
-        const mergedCanvas = mergeImages(images);
+        let mergedCanvas;
+        switch (document.getElementById('mergeMode').value) {
+          case 'multiply':
+            mergedCanvas = mergeImagesByMultiply(images);
+            break;
+          case 'difference':
+            mergedCanvas = mergeImagesByDifference(images);
+            break;
+        }
         document.getElementById('mergeResult').innerHTML =
           `<img src="${mergedCanvas.toDataURL('image/png')}" style="max-width:100%">`;
       } catch (error) {
@@ -298,7 +313,7 @@
     }
 
     // 辅助函数：合并图片（正片叠底）
-    function mergeImages(images) {
+    function mergeImagesByMultiply(images) {
       const baseCanvas = document.createElement('canvas');
       baseCanvas.width = images[0].width;
       baseCanvas.height = images[0].height;
@@ -307,6 +322,26 @@
 
       for (let i = 1; i < images.length; i++) {
         baseCtx.globalCompositeOperation = 'multiply';
+        baseCtx.drawImage(images[i], 0, 0);
+      }
+
+      return baseCanvas;
+    }
+
+    // 辅助函数：合并图片（反差模式）
+    function mergeImagesByDifference(images) {
+      const baseCanvas = document.createElement('canvas');
+      baseCanvas.width = images[0].width;
+      baseCanvas.height = images[0].height;
+      const baseCtx = baseCanvas.getContext('2d');
+
+      // 绘制第一张图片作为基础
+      baseCtx.drawImage(images[0], 0, 0);
+
+      // 应用反差混合模式（difference 或 exclusion）
+      for (let i = 1; i < images.length; i++) {
+        // 设置混合模式为 "difference" 或 "exclusion"
+        baseCtx.globalCompositeOperation = 'difference'; // 可选 'exclusion'
         baseCtx.drawImage(images[i], 0, 0);
       }
 
